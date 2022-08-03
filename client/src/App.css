@@ -1,0 +1,88 @@
+.App {
+	text-align: center;
+	background-image: linear-gradient(30deg, #ff60f7 0%, #6a82fb 100%);
+	/* background-image: linear-gradient(90deg, #fc5c7d 0%, #6a82fb 100%); */
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.green {
+	color: rgb(5, 180, 5);
+}
+.red {
+	color: red;
+}
+.plus__icon {
+	background-color: rgb(42, 27, 77);
+	color: white;
+	height: 40px;
+	width: 40px;
+	font-size: 20px;
+	border-radius: 0.4em;
+	/* margin-bottom: 0.5em; */
+	font-weight: 400;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.main__div {
+	height: 70vh;
+	background-color: white;
+	border-radius: 0.7em;
+	width: 70vw;
+	/* overflow: auto; */
+	overflow-y: overlay;
+}
+
+.main__div .table__header {
+	background-color: rgb(42, 27, 77);
+	color: white;
+}
+.main__div .table__header tr {
+	height: auto;
+}
+
+.table__header {
+	position: sticky;
+	position: -webkit-sticky;
+	top: 0px;
+}
+tbody tr:hover {
+	background-color: #e6ebff;
+}
+td {
+	vertical-align: middle;
+	cursor: initial;
+}
+.scrollWidth::-webkit-scrollbar {
+	width: 0;
+	opacity: 0;
+	transition: 2s all ease;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+.main__div:hover.scrollWidth::-webkit-scrollbar {
+	opacity: 0.3;
+	width: 2px;
+	height: 30px;
+}
+
+.scrollWidth::-webkit-scrollbar-track {
+	box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+	margin-top: 40px;
+	margin-bottom: 17px;
+}
+.active__page .plus__icon {
+	background-color: white !important;
+	color: rgb(42, 27, 77) !important;
+}
+
+.scrollWidth::-webkit-scrollbar-thumb {
+	background-color: darkgrey;
+	outline: 1px solid slategrey;
+}
