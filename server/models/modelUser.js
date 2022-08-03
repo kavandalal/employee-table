@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 var validator = require('validator');
 
 const userSchema = new mongoose.Schema({
-	// username,
-	// email,
+	// username ( Filter ) ,
+	// email ( Filter ) ,
 	// phone,
 	// status(active/inactive),
 	// profile image,
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
 		required: [true, 'Please Enter Phone Number'],
 		validate: {
 			validator: function (v) {
-				return /^[0-9]{10}/.test(v);
+				return /^[0-9]{10}$/.test(v);
 			},
 			message: '{VALUE} is not a valid 10 digit number!',
 		},
@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema({
 		required: [true, 'Please Enter Status'],
 	},
 	gender: {
+		//  M / F
 		type: String,
 		trim: true,
 		required: [true, 'Please Select Gender'],
@@ -43,10 +44,12 @@ const userSchema = new mongoose.Schema({
 	avatar: {
 		public_id: {
 			type: String,
+			default: 'employee-table/default_image',
 			required: true,
 		},
 		url: {
 			type: String,
+			default: 'https://res.cloudinary.com/dkvftcbih/image/upload/v1659535422/employee-table/default_image.jpg',
 			required: true,
 		},
 	},
