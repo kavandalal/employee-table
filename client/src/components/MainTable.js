@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table } from 'react-bootstrap';
 
 function MainTable() {
+	// setup pagination start
 	const [currentPage, setCurrentPage] = useState(1);
 	const [perPage, setPerPage] = useState(10);
 	const [totalPagination, setTotalPagination] = useState(3);
@@ -9,6 +11,13 @@ function MainTable() {
 	const [minPage, setMinPage] = useState(1);
 	const [maxPage, setMaxPage] = useState(3);
 	const [pagesArr, setPagesArr] = useState([]);
+	// setup pagination end
+	const navigate = useNavigate();
+
+	const [param, setParam] = useState({
+		status: false,
+		username: '',
+	});
 
 	useEffect(() => {
 		const totalData = 453;
@@ -19,6 +28,13 @@ function MainTable() {
 			arr.push(i);
 		}
 		setPagesArr(arr);
+	}, []);
+
+	useEffect(() => {
+		setParam({
+			status: false,
+			username: '',
+		});
 	}, []);
 
 	const handlePageBack = () => {
@@ -33,7 +49,6 @@ function MainTable() {
 	};
 	const handlePageNext = () => {
 		if (currentPage < totalPage) {
-			console.log('2322');
 			const current = currentPage;
 			if ((current + 1) % totalPagination === 1) {
 				setMinPage((prev) => prev + totalPagination);
@@ -45,12 +60,28 @@ function MainTable() {
 	const pageClick = (num) => {
 		setCurrentPage(num);
 	};
+
+	const callAction = (action = 'edit', username = 'kavan1') => {
+		if (action === 'edit') {
+			if (username) {
+				navigate(`/${username}`);
+			}
+		} else if (action === 'delete') {
+		}
+	};
+
 	console.log(1, minPage, maxPage, pagesArr);
 	return (
 		<div>
-			{currentPage}
-			<section>
+			<section className='main__header'>
 				<div className='d-flex justify-content-end align-items-center mb-2'>
+					<div className='cursor-pointer me-2 plus__icon'>
+						<select name='' id=''>
+							<option value='10'>10</option>
+							<option value='25'>25</option>
+							<option value='50'>50</option>
+						</select>
+					</div>
 					<div className='cursor-pointer me-2'>
 						<i class='fa fa-filter plus__icon' aria-hidden='true'></i>
 					</div>
@@ -92,10 +123,10 @@ function MainTable() {
 										<td>
 											{/* <i class='fa fa-ellipsis-v' aria-hidden='true'></i> */}
 											<div className='d-flex align-items-center justify-content-center '>
-												<div className='cursor-pointer'>
+												<div className='cursor-pointer' onClick={() => callAction('edit', i?.username)}>
 													<i class='fa fa-pencil-square-o me-1' aria-hidden='true'></i>
 												</div>
-												<div className='cursor-pointer'>
+												<div className='cursor-pointer' onClick={() => callAction('delete', i?.id)}>
 													<i class='fa fa-trash' aria-hidden='true'></i>
 												</div>
 											</div>
@@ -115,9 +146,9 @@ function MainTable() {
 						pagesArr.map((i) => {
 							if (minPage <= i && maxPage >= i) {
 								return (
-									<div className={` cursor-pointer me-2 ${currentPage === i ? 'active__page' : ''}`}>
+									<div className={` cursor-pointer me-2 ${currentPage === i ? 'active__page' : ''}`} onClick={() => pageClick(i)}>
 										<i class='fa plus__icon' aria-hidden='true'>
-											{i}
+											<b>{i}</b>
 										</i>
 									</div>
 								);

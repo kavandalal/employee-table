@@ -1,3 +1,21 @@
+body {
+	font-family: 'Roboto', sans-serif;
+}
+.main__header select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-color: transparent;
+	color: white;
+	border: 0;
+}
+.main__header option {
+	box-shadow: none;
+	color: black;
+}
+select:focus {
+	border: 0;
+}
+
 .App {
 	text-align: center;
 	background-image: linear-gradient(30deg, #ff60f7 0%, #6a82fb 100%);
@@ -7,7 +25,9 @@
 	justify-content: center;
 	align-items: center;
 }
-
+.h-full {
+	height: 100%;
+}
 .green {
 	color: rgb(5, 180, 5);
 }
@@ -85,4 +105,21 @@ td {
 .scrollWidth::-webkit-scrollbar-thumb {
 	background-color: darkgrey;
 	outline: 1px solid slategrey;
+}
+
+.save__btn {
+	width: 80px;
+}
+.save__btn button {
+	background-color: inherit;
+	color: inherit;
+	border: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.save__btn button:focus,
+.save__btn button:active {
+	border: 0;
+	border-color: inherit;
 }

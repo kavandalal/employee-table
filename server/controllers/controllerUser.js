@@ -81,7 +81,7 @@ exports.editUser = catchAsyncErrors(async (req, res) => {
 		gender: req.body.gender,
 	};
 
-	if (req.body.avatar != '') {
+	if (req.body.avatar && req.body.avatar != '') {
 		const user1 = await User.findById(req.body.id);
 
 		const imageId = user1.avatar.public_id;
