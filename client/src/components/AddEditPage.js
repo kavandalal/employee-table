@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import Input from '../common/Input';
@@ -7,6 +7,8 @@ import service from '../common/Service';
 
 function AddEditPage() {
 	const navigate = useNavigate();
+	const location = useLocation();
+	console.log(location.state);
 	let { username: paramUserName } = useParams();
 	const [dataHere, setDataHere] = useState({
 		id: 0,
@@ -23,13 +25,13 @@ function AddEditPage() {
 	});
 
 	useEffect(() => {
-		if ('edit') {
+		if (location.state.data === 'edit') {
 			getData(paramUserName);
 		}
 	}, []);
 
 	const getData = async (paramUserName) => {
-		axios
+		await axios
 			.get(`api/get/${paramUserName}`)
 			.then((res) => {
 				console.log(res?.data);
@@ -68,8 +70,9 @@ function AddEditPage() {
 			[name]: value,
 		}));
 	};
+
 	const imageChange = async (e) => {
-		if (e.target.files) {
+		if (e.target.files[0]) {
 			const x = await service.getImageUrls(e.target.files[0]);
 			setImageData((prev) => ({
 				...prev,
@@ -78,37 +81,60 @@ function AddEditPage() {
 			}));
 		}
 	};
+
 	const removeImage = () => {
 		setImageData((prev) => ({
 			changed: false,
 			url: prev?.originalUrl,
 		}));
 	};
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		console.log('done');
-		const payload = {
-			id: dataHere?.id,
-			username: dataHere?.username,
-			email: dataHere?.email,
-			phone: dataHere?.phone,
-			status: dataHere?.status === 'Y' ? true : false,
-			gender: dataHere?.gender,
-			avatar: '',
-		};
-		if (imageData?.changed) {
-			payload.avatar = imageData?.url;
+		if (location.state.data === 'edit') {
+			const payload = {
+				id: dataHere?.id,
+				username: dataHere?.username,
+				email: dataHere?.email,
+				phone: dataHere?.phone,
+				status: dataHere?.status === 'Y' ? true : false,
+				gender: dataHere?.gender,
+				avatar: '',
+			};
+			if (imageData?.changed) {
+				payload.avatar = imageData?.url;
+			}
+			axios
+				.post('api/edit', payload)
+				.then((res) => {
+					if (res?.data?.success) {
+						navigate(-1);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		} else if (location.state.data === 'add') {
+			const payload = {
+				username: dataHere?.username,
+				email: dataHere?.email,
+				phone: dataHere?.phone,
+				status: dataHere?.status === 'Y' ? true : false,
+				gender: dataHere?.gender,
+				avatar: imageData?.url,
+			};
+
+			axios
+				.post('api/register', payload)
+				.then((res) => {
+					if (res?.data?.success) {
+						navigate(-1);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
 		}
-		axios
-			.post('edit', payload)
-			.then((res) => {
-				if (res?.data?.success) {
-					navigate(-1);
-				}
-			})
-			.catch((err) => {
-				console.error(err);
-			});
 	};
 
 	return (
@@ -125,13 +151,7 @@ function AddEditPage() {
 					<div className='row h-full'>
 						<div className='col-md-5'>
 							<div className='d-flex h-full flex-column justify-content-center'>
-								<div>
-									{imageData?.url ? (
-										<img src={imageData?.url} alt='' width={'300'} />
-									) : (
-										<img src='logo192.png' height={200} />
-									)}
-								</div>
+								<div>{imageData?.url && <img src={imageData?.url} alt='' width={'300'} />}</div>
 								<div>
 									{imageData?.changed && (
 										<button type='button' onClick={removeImage}>

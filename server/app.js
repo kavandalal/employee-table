@@ -7,17 +7,17 @@ const path = require('path');
 const cors = require('cors');
 const errorMiddleware = require('./middlerware/error');
 
+app.use(cors());
 app.use(express.json());
 // app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
-app.use(cors());
 
 // Routes
 const posts = require('./routes/posts');
 
 // Controller
-app.use('/api/', posts);
+app.use('/api', posts);
 
 app.use(express.static(path.join(__dirname, '../client/build')));
 

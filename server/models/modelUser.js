@@ -45,12 +45,12 @@ const userSchema = new mongoose.Schema({
 		public_id: {
 			type: String,
 			default: 'employee-table/default_image',
-			required: true,
+			required: false,
 		},
 		url: {
 			type: String,
 			default: 'https://res.cloudinary.com/dkvftcbih/image/upload/v1659535422/employee-table/default_image.jpg',
-			required: true,
+			required: false,
 		},
 	},
 });

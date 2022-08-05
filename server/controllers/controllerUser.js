@@ -8,26 +8,31 @@ const userPerPage = 10;
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 	// data:base64 photo
-	const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-		folder: 'employee-table',
-		width: 150,
-		height: 150,
-		crop: 'scale',
-	});
+	let myCloud = {
+		public_id: '',
+		secure_url: '',
+	};
+	if (req.body.avatar) {
+		myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+			folder: 'employee-table',
+			width: 150,
+			height: 150,
+			crop: 'scale',
+		});
+	}
 
 	const { username, phone, email, status, gender } = req.body;
-	console.log(username, phone, email, status, gender);
-	const user = new User({
+	const userSchema = {
 		username,
 		email,
 		phone,
 		status,
 		gender,
-		avatar: {
-			public_id: myCloud.public_id,
-			url: myCloud.secure_url,
-		},
-	});
+	};
+	if (myCloud.public_id) {
+		userSchema.avatar = { public_id: myCloud.public_id, url: myCloud.secure_url };
+	}
+	const user = new User(userSchema);
 	user.save(async (err, resp) => {
 		if (err) {
 			await cloudinary.uploader.destroy(myCloud.public_id);
@@ -42,8 +47,10 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.getAllUsers = catchAsyncErrors(async (req, res) => {
-	const { pageNo, sortBy } = req.body;
+	const { pageNo, sortBy, perPage } = req.body;
 	let sortStr = '';
+	let perPageData = Number(userPerPage);
+	if (perPage) perPageData = Number(perPage);
 	if ('email' in sortBy) {
 		sortStr += 'email ';
 	}
@@ -53,12 +60,15 @@ exports.getAllUsers = catchAsyncErrors(async (req, res) => {
 	// username || email
 	const users = await User.find()
 		.sort(sortStr)
-		.skip((Number(pageNo) - 1) * userPerPage)
-		.limit(userPerPage);
+		.skip((Number(pageNo) - 1) * perPageData)
+		.limit(perPageData);
+
+	let totalCount = await User.count();
 
 	res.status(200).json({
 		success: true,
 		data: users,
+		totalUser: totalCount,
 	});
 });
 
@@ -112,14 +122,14 @@ exports.editUser = catchAsyncErrors(async (req, res) => {
 });
 
 exports.deleteUser = catchAsyncErrors(async (req, res) => {
-	const { username } = req.params;
-	const user = await User.findOne({ username });
+	const { id } = req.params;
+	const user = await User.findById(id);
 
 	if (!user) {
 		return next(new ErrorHandler(`User does not exist with Username: ${req.params.id}`, 400));
 	}
 
-	if (user.avatar.public_id !== 'employee-table/default_image') {
+	if (user.avatar.public_id && user.avatar.public_id !== 'employee-table/default_image') {
 		const imageId = user.avatar.public_id;
 		await cloudinary.uploader.destroy(imageId);
 	}

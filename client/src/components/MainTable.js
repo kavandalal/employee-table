@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table } from 'react-bootstrap';
+import axios from 'axios';
 
 function MainTable() {
 	// setup pagination start
@@ -12,6 +13,11 @@ function MainTable() {
 	const [maxPage, setMaxPage] = useState(3);
 	const [pagesArr, setPagesArr] = useState([]);
 	// setup pagination end
+
+	const [totalData, setTotalData] = useState(0);
+	const [allDataArr, setAllDataArr] = useState([]);
+	const [hitApi, setHitApi] = useState(false);
+
 	const navigate = useNavigate();
 
 	const [param, setParam] = useState({
@@ -20,7 +26,6 @@ function MainTable() {
 	});
 
 	useEffect(() => {
-		const totalData = 453;
 		const numPage = Math.ceil(totalData / perPage);
 		setTotalPage(numPage);
 		const arr = [];
@@ -28,7 +33,7 @@ function MainTable() {
 			arr.push(i);
 		}
 		setPagesArr(arr);
-	}, []);
+	}, [totalData]);
 
 	useEffect(() => {
 		setParam({
@@ -36,6 +41,30 @@ function MainTable() {
 			username: '',
 		});
 	}, []);
+
+	useEffect(() => {
+		getAllUser();
+	}, [perPage, hitApi, currentPage]);
+
+	const getAllUser = async () => {
+		const payload = {
+			pageNo: currentPage,
+			sortBy: [],
+			perPage: perPage,
+		};
+		await axios
+			.post('/api/getAll', payload)
+			.then((res) => {
+				if (res?.data?.success) {
+					console.log(res?.data?.data);
+					setAllDataArr(res?.data?.data);
+					setTotalData(res?.data?.totalUser);
+				}
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	};
 
 	const handlePageBack = () => {
 		if (currentPage > 1) {
@@ -60,23 +89,42 @@ function MainTable() {
 	const pageClick = (num) => {
 		setCurrentPage(num);
 	};
+	const handlePerPageChange = (e) => {
+		const { value } = e.target;
+		setPerPage(value);
+	};
 
-	const callAction = (action = 'edit', username = 'kavan1') => {
+	const callAction = async (action = 'edit', username = 'kavan1') => {
 		if (action === 'edit') {
 			if (username) {
-				navigate(`/${username}`);
+				navigate(`/${username}`, { state: { data: 'edit' } });
+			}
+		} else if (action === 'add') {
+			if (username) {
+				navigate(`/${username}`, { state: { data: 'add' } });
 			}
 		} else if (action === 'delete') {
+			await axios
+				.get(`/api/delete/${username}`)
+				.then((res) => {
+					if (res?.data?.success) {
+						console.log(res?.data);
+						setHitApi(!hitApi);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
 		}
 	};
 
-	console.log(1, minPage, maxPage, pagesArr);
+	console.log(1, allDataArr);
 	return (
 		<div>
 			<section className='main__header'>
 				<div className='d-flex justify-content-end align-items-center mb-2'>
 					<div className='cursor-pointer me-2 plus__icon'>
-						<select name='' id=''>
+						<select name='' value={perPage} onChange={handlePerPageChange} id=''>
 							<option value='10'>10</option>
 							<option value='25'>25</option>
 							<option value='50'>50</option>
@@ -85,7 +133,7 @@ function MainTable() {
 					<div className='cursor-pointer me-2'>
 						<i class='fa fa-filter plus__icon' aria-hidden='true'></i>
 					</div>
-					<div className='cursor-pointer'>
+					<div className='cursor-pointer' onClick={() => callAction('add')}>
 						<i class='fa fa-plus plus__icon ' aria-hidden='true'></i>
 					</div>
 				</div>
@@ -106,33 +154,35 @@ function MainTable() {
 							</tr>
 						</thead>
 						<tbody>
-							{Array(10)
-								.fill(1)
-								.map((i) => (
-									<tr className=''>
-										<td>
-											<img src='logo192.png' height={40} />
-										</td>
-										<td>Mark</td>
-										<td>Otto@gmail.com</td>
-										<td>9898989898</td>
-										<td>Male</td>
-										<td>
-											<i class='fa fa-solid fa-circle red green'></i>
-										</td>
-										<td>
-											{/* <i class='fa fa-ellipsis-v' aria-hidden='true'></i> */}
-											<div className='d-flex align-items-center justify-content-center '>
-												<div className='cursor-pointer' onClick={() => callAction('edit', i?.username)}>
-													<i class='fa fa-pencil-square-o me-1' aria-hidden='true'></i>
-												</div>
-												<div className='cursor-pointer' onClick={() => callAction('delete', i?.id)}>
-													<i class='fa fa-trash' aria-hidden='true'></i>
-												</div>
+							{allDataArr.map((i) => (
+								<tr className=''>
+									<td>
+										<img src={i?.avatar?.url} height={40} />
+									</td>
+									<td>{i?.username}</td>
+									<td>{i?.email}</td>
+									<td>{i?.phone}</td>
+									<td>{i?.gender === 'M' ? 'Male' : i?.gender === 'F' ? 'Female' : 'Other'}</td>
+									<td>
+										{i?.status === false ? (
+											<i class='fa fa-solid fa-circle red '></i>
+										) : (
+											<i class='fa fa-solid fa-circle green'></i>
+										)}
+									</td>
+									<td>
+										{/* <i class='fa fa-ellipsis-v' aria-hidden='true'></i> */}
+										<div className='d-flex align-items-center justify-content-center '>
+											<div className='cursor-pointer' onClick={() => callAction('edit', i?.username)}>
+												<i class='fa fa-pencil-square-o me-1' aria-hidden='true'></i>
 											</div>
-										</td>
-									</tr>
-								))}
+											<div className='cursor-pointer' onClick={() => callAction('delete', i?._id)}>
+												<i class='fa fa-trash' aria-hidden='true'></i>
+											</div>
+										</div>
+									</td>
+								</tr>
+							))}
 						</tbody>
 					</Table>
 				</div>
@@ -146,7 +196,9 @@ function MainTable() {
 						pagesArr.map((i) => {
 							if (minPage <= i && maxPage >= i) {
 								return (
-									<div className={` cursor-pointer me-2 ${currentPage === i ? 'active__page' : ''}`} onClick={() => pageClick(i)}>
+									<div
+										className={` cursor-pointer me-2 ${currentPage === i ? 'active__page' : ''}`}
+										onClick={() => pageClick(i)}>
 										<i class='fa plus__icon' aria-hidden='true'>
 											<b>{i}</b>
 										</i>
