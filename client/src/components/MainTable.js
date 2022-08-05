@@ -19,6 +19,7 @@ function MainTable() {
 	const [totalData, setTotalData] = useState(0);
 	const [allDataArr, setAllDataArr] = useState([]);
 	const [hitApi, setHitApi] = useState(false);
+	const [filterOption, setFilterOption] = useState({ value: 'none', option: [] });
 
 	const navigate = useNavigate();
 
@@ -46,12 +47,12 @@ function MainTable() {
 
 	useEffect(() => {
 		getAllUser();
-	}, [perPage, hitApi, currentPage]);
+	}, [perPage, hitApi, currentPage, filterOption]);
 
 	const getAllUser = async () => {
 		const payload = {
 			pageNo: currentPage,
-			sortBy: [],
+			sortBy: filterOption.option,
 			perPage: perPage,
 		};
 		await axios
@@ -114,7 +115,6 @@ function MainTable() {
 					.get(`/api/delete/${username}`)
 					.then((res) => {
 						if (res?.data?.success) {
-							console.log(res?.data);
 							setHitApi(!hitApi);
 						} else {
 							alert.error(res?.data?.message);
@@ -127,8 +127,19 @@ function MainTable() {
 			}
 		}
 	};
+	const handleFilter = (e) => {
+		const { value } = e.target;
+		let a = [];
+		if (value === 'username') {
+			a = ['username'];
+		} else if (value === 'email') {
+			a = ['email'];
+		} else if (value === 'both') {
+			a = ['username', 'email'];
+		}
+		setFilterOption({ value: value, option: a });
+	};
 
-	console.log(1, allDataArr);
 	return (
 		<div>
 			<section className='main__header'>
@@ -140,8 +151,14 @@ function MainTable() {
 							<option value='50'>50</option>
 						</select>
 					</div>
-					<div className='cursor-pointer me-2'>
-						<i class='fa fa-filter plus__icon' aria-hidden='true'></i>
+					<div className='cursor-pointer filter__icon me-2'>
+						<i class=' fa fa-filter me-2' aria-hidden='true'></i>
+						<select name='' value={filterOption.value} onChange={handleFilter} id=''>
+							<option value='none'>None</option>
+							<option value='username'>Username</option>
+							<option value='email'>Email</option>
+							<option value='both'>Both</option>
+						</select>
 					</div>
 					<div className='cursor-pointer' onClick={() => callAction('add')}>
 						<i class='fa fa-plus plus__icon ' aria-hidden='true'></i>

@@ -10,7 +10,6 @@ function AddEditPage() {
 	const alert = useAlert();
 	const navigate = useNavigate();
 	const location = useLocation();
-	console.log(location.state);
 	let { username: paramUserName } = useParams();
 	const [dataHere, setDataHere] = useState({
 		id: 0,
@@ -36,7 +35,6 @@ function AddEditPage() {
 		await axios
 			.get(`api/get/${paramUserName}`)
 			.then((res) => {
-				console.log(res?.data);
 				if (res?.data?.success) {
 					const dataH = res?.data?.data;
 					setDataHere((prev) => ({

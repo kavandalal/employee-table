@@ -51,11 +51,11 @@ exports.getAllUsers = catchAsyncErrors(async (req, res) => {
 	let sortStr = '';
 	let perPageData = Number(userPerPage);
 	if (perPage) perPageData = Number(perPage);
-	if ('email' in sortBy) {
+	if (sortBy.includes('email')) {
 		sortStr += 'email ';
 	}
-	if ('username' in sortBy) {
-		sortStr += 'username';
+	if (sortBy.includes('username')) {
+		sortStr += ' username';
 	}
 	// username || email
 	const users = await User.find()
