@@ -4,8 +4,10 @@ import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import Input from '../common/Input';
 import service from '../common/Service';
+import { useAlert } from 'react-alert';
 
 function AddEditPage() {
+	const alert = useAlert();
 	const navigate = useNavigate();
 	const location = useLocation();
 	console.log(location.state);
@@ -52,9 +54,12 @@ function AddEditPage() {
 						url: dataH?.avatar?.url,
 						originalUrl: dataH?.avatar?.url,
 					}));
+				} else {
+					alert.error(res?.data?.message);
 				}
 			})
 			.catch((err) => {
+				alert.error('Something Went Wrong');
 				console.error(err);
 			});
 	};
@@ -108,10 +113,14 @@ function AddEditPage() {
 				.post('api/edit', payload)
 				.then((res) => {
 					if (res?.data?.success) {
+						alert.success('User Updated Successfully');
 						navigate(-1);
+					} else {
+						alert.error(res?.data?.message);
 					}
 				})
 				.catch((err) => {
+					alert.error('Something Went Wrong');
 					console.error(err);
 				});
 		} else if (location.state.data === 'add') {
@@ -128,10 +137,14 @@ function AddEditPage() {
 				.post('api/register', payload)
 				.then((res) => {
 					if (res?.data?.success) {
+						alert.success('User Created Successfully');
 						navigate(-1);
+					} else {
+						alert.error(res?.data?.message);
 					}
 				})
 				.catch((err) => {
+					alert.error('Something Went Wrong');
 					console.error(err);
 				});
 		}

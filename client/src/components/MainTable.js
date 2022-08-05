@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table } from 'react-bootstrap';
 import axios from 'axios';
+import { useAlert } from 'react-alert';
 
 function MainTable() {
+	const alert = useAlert();
 	// setup pagination start
 	const [currentPage, setCurrentPage] = useState(1);
 	const [perPage, setPerPage] = useState(10);
@@ -56,12 +58,14 @@ function MainTable() {
 			.post('/api/getAll', payload)
 			.then((res) => {
 				if (res?.data?.success) {
-					console.log(res?.data?.data);
 					setAllDataArr(res?.data?.data);
 					setTotalData(res?.data?.totalUser);
+				} else {
+					alert.error(res?.data?.message);
 				}
 			})
 			.catch((err) => {
+				alert.error('Something Went Wrong');
 				console.error(err);
 			});
 	};
@@ -104,17 +108,23 @@ function MainTable() {
 				navigate(`/${username}`, { state: { data: 'add' } });
 			}
 		} else if (action === 'delete') {
-			await axios
-				.get(`/api/delete/${username}`)
-				.then((res) => {
-					if (res?.data?.success) {
-						console.log(res?.data);
-						setHitApi(!hitApi);
-					}
-				})
-				.catch((err) => {
-					console.error(err);
-				});
+			let status = 'Are you sure, you want to delete this user';
+			if (window.confirm(status) == true) {
+				await axios
+					.get(`/api/delete/${username}`)
+					.then((res) => {
+						if (res?.data?.success) {
+							console.log(res?.data);
+							setHitApi(!hitApi);
+						} else {
+							alert.error(res?.data?.message);
+						}
+					})
+					.catch((err) => {
+						alert.error('Something Went Wrong');
+						console.error(err);
+					});
+			}
 		}
 	};
 
