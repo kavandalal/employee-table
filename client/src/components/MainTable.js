@@ -36,7 +36,7 @@ function MainTable() {
 			arr.push(i);
 		}
 		setPagesArr(arr);
-	}, [totalData]);
+	}, [totalData, perPage]);
 
 	useEffect(() => {
 		setParam({
